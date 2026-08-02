@@ -20,6 +20,7 @@ AInteractableBase::AInteractableBase()
 
 	InteractionBox->OnComponentBeginOverlap.AddDynamic(this, &AInteractableBase::OnInteractionBoxBeginOverlap);
 	InteractionBox->OnComponentEndOverlap.AddDynamic(this, &AInteractableBase::OnInteractionBoxEndOverlap);
+
 }
 
 // Called when the game starts or when spawned
@@ -31,13 +32,7 @@ void AInteractableBase::BeginPlay()
 
 void AInteractableBase::OnInteractionBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(
-			-1, 2.0f, FColor::Green, FText::Format(FText::FromString(TEXT("Вы пересекли {0}")), DisplayName).ToString()
-		);
-	}
-	
+
 	ATheLostIslandCharacter* Character = Cast<ATheLostIslandCharacter>(OtherActor);
 
 	if (Character)
@@ -58,15 +53,7 @@ void AInteractableBase::OnInteractionBoxEndOverlap(UPrimitiveComponent* Overlapp
 
 void AInteractableBase::Interact()
 {
-	if (GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(
-			-1,
-			2.0f,
-			FColor::Cyan,
-			FString::Printf(TEXT("Взаимодействие: %s"), *DisplayName.ToString())
-		);
-	}
+
 }
 
 // Called every frame
@@ -83,10 +70,20 @@ FText AInteractableBase::GetDisplayName() const
 
 FText AInteractableBase::GetDescription() const
 {
-	return Description;
+	if (States.IsValidIndex(CurrentState))
+	{
+		return States[CurrentState].Description;
+	}
+
+	return FText::GetEmpty();
 }
 
 FText AInteractableBase::GetActionText() const
 {
-	return ActionText;
+	if (States.IsValidIndex(CurrentState))
+	{
+		return States[CurrentState].ActionText;
+	}
+
+	return FText::GetEmpty();
 }
