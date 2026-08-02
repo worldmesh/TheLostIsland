@@ -12,6 +12,8 @@
 #include "InputActionValue.h"
 #include "TheLostIsland.h"
 #include "Interactables/InteractableBase.h"
+#include "GameManager.h"
+#include "Kismet/GameplayStatics.h"
 
 ATheLostIslandCharacter::ATheLostIslandCharacter()
 {
@@ -130,6 +132,14 @@ void ATheLostIslandCharacter::Interact()
 	{
 		CurrentInteractable->Interact();
 	}
+}
+
+void ATheLostIslandCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+	GameManager = Cast<AGameManager>(
+		UGameplayStatics::GetActorOfClass(GetWorld(), AGameManager::StaticClass()));
 }
 
 void ATheLostIslandCharacter::DoMove(float Right, float Forward)

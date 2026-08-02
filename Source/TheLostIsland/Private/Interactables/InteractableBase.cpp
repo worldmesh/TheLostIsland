@@ -51,6 +51,10 @@ void AInteractableBase::OnInteractionBoxEndOverlap(UPrimitiveComponent* Overlapp
 	}
 }
 
+void AInteractableBase::OnStateChanged()
+{
+}
+
 void AInteractableBase::Interact()
 {
 
@@ -86,4 +90,21 @@ FText AInteractableBase::GetActionText() const
 	}
 
 	return FText::GetEmpty();
+}
+
+int32 AInteractableBase::GetCurrentState() const
+{
+	return CurrentState;
+}
+
+void AInteractableBase::SetCurrentState(int32 NewState)
+{
+	if (CurrentState == NewState)
+	{
+		return;
+	}
+
+	CurrentState = NewState;
+
+	OnStateChanged();
 }

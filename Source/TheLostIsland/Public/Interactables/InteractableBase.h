@@ -75,21 +75,22 @@ protected:
 		UPrimitiveComponent* OtherComp,
 		int32 OtherBodyIndex);
 
+	///State///
+	virtual void OnStateChanged();
+
 public:	
 
-	//Called when player interact with this object.
+	//Interaction
 	virtual void Interact();
-
-	// Returns interaction display name.
 	virtual FText GetDisplayName() const;
-
-	// Returns interaction description.
 	virtual FText GetDescription() const;
-
-	// Returns interaction action text.
 	virtual FText GetActionText() const;
+	// Sets the current interaction state.
+	void SetCurrentState(int32 NewState);
+	// Returns the current interaction state.
+	int32 GetCurrentState() const;
 
-	// Called every frame
+	// Actor
 	virtual void Tick(float DeltaTime) override;
 
 };

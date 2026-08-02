@@ -7,11 +7,13 @@
 #include "Logging/LogMacros.h"
 #include "TheLostIslandCharacter.generated.h"
 
+
 class USpringArmComponent;
 class UCameraComponent;
 class UInputAction;
 struct FInputActionValue;
 class AInteractableBase;
+class AGameManager;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
@@ -54,8 +56,13 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Input")
 	UInputAction* InteractAction;
 
+	// Interact
 	UPROPERTY()
 	AInteractableBase* CurrentInteractable;
+
+	// Reference to the game manager.
+	UPROPERTY()
+	AGameManager* GameManager;
 
 public:
 
@@ -77,6 +84,8 @@ protected:
 
 	/** Called for looking interact */
 	void Interact();
+
+	virtual void BeginPlay() override;
 
 public:
 
