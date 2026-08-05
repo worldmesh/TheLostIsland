@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Logging/LogMacros.h"
+#include "Interface/InteractableInterface.h"
 #include "TheLostIslandCharacter.generated.h"
 
 
@@ -12,7 +13,6 @@ class USpringArmComponent;
 class UCameraComponent;
 class UInputAction;
 struct FInputActionValue;
-class AInteractableBase;
 class AGameManager;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
@@ -56,9 +56,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Input")
 	UInputAction* InteractAction;
 
-	// Interact
+	// Current actor implementing interaction interface.
 	UPROPERTY()
-	AInteractableBase* CurrentInteractable;
+	AActor* CurrentInteractable;
 
 	// Reference to the game manager.
 	UPROPERTY()
@@ -107,7 +107,7 @@ public:
 
 public:
 
-	void SetCurrentInteractable(AInteractableBase* NewInteractable);
+	void SetCurrentInteractable(AActor* NewInteractable);
 
 	void ClearCurrentInteractable();
 
@@ -118,6 +118,9 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Interaction")
 	void HideInteractionWidget();
+
+	UFUNCTION(BlueprintCallable, Category = "Interaction")
+	void RefreshInteractionWidget();
 
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }

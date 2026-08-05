@@ -55,15 +55,21 @@ ATheLostIslandCharacter::ATheLostIslandCharacter()
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
 }
 
-void ATheLostIslandCharacter::SetCurrentInteractable(AInteractableBase* NewInteractable)
+void ATheLostIslandCharacter::SetCurrentInteractable(AActor* NewInteractable)
 {
 	CurrentInteractable = NewInteractable;
 
 	if (CurrentInteractable)
 	{
-		ShowInteractionWidget(
-			CurrentInteractable->GetDisplayName(),
-			CurrentInteractable->GetActionText());
+		IInteractableInterface* Interactable =
+			Cast<IInteractableInterface>(CurrentInteractable);
+
+		if (Interactable)
+		{
+			ShowInteractionWidget(
+				Interactable->GetDisplayName(),
+				Interactable->GetActionText());
+		}
 	}
 }
 
@@ -72,6 +78,24 @@ void ATheLostIslandCharacter::ClearCurrentInteractable()
 	CurrentInteractable = nullptr;
 
 	HideInteractionWidget();
+}
+
+void ATheLostIslandCharacter::RefreshInteractionWidget()
+{
+	if (!CurrentInteractable)
+	{
+		return;
+	}
+
+	IInteractableInterface* Interactable =
+		Cast<IInteractableInterface>(CurrentInteractable);
+
+	if (Interactable)
+	{
+		ShowInteractionWidget(
+			Interactable->GetDisplayName(),
+			Interactable->GetActionText());
+	}
 }
 
 void ATheLostIslandCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -119,18 +143,17 @@ void ATheLostIslandCharacter::Look(const FInputActionValue& Value)
 
 void ATheLostIslandCharacter::Interact()
 {
-	if (GEngine)
+	if (!CurrentInteractable)
 	{
-		GEngine->AddOnScreenDebugMessage(
-			-1,
-			2.f,
-			FColor::Yellow,
-			TEXT("E Pressed"));
+		return;
 	}
 
-	if (CurrentInteractable)
+	IInteractableInterface* Interactable =
+		Cast<IInteractableInterface>(CurrentInteractable);
+
+	if (Interactable)
 	{
-		CurrentInteractable->Interact();
+		Interactable->Interact();
 	}
 }
 

@@ -5,6 +5,9 @@
 #include "Components/StaticMeshComponent.h"
 #include "Components/BoxComponent.h"
 #include "TheLostIslandCharacter.h"
+#include "Sound/SoundBase.h"
+//#include "NiagaraSystem.h"
+#include "Animation/AnimMontage.h"
 
 // Sets default values
 AInteractableBase::AInteractableBase()
@@ -55,7 +58,7 @@ void AInteractableBase::OnStateChanged()
 {
 }
 
-void AInteractableBase::Interact()
+void AInteractableBase::Interact_Implementation()
 {
 
 }

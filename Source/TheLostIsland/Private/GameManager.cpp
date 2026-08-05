@@ -4,6 +4,7 @@
 #include "GameManager.h"
 #include "Interactables/InteractableBase.h"
 
+
 // Sets default values
 AGameManager::AGameManager()
 {
@@ -17,7 +18,7 @@ void AGameManager::BeginPlay()
 {
 	Super::BeginPlay();
 
-    TestBatteryFound();
+    
 	
 }
 
@@ -28,7 +29,7 @@ void AGameManager::Tick(float DeltaTime)
 
 }
 
-void AGameManager::TestBatteryFound()
+void AGameManager::FuelPickedUp()
 {
     if (Boat)
     {

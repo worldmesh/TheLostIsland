@@ -18,7 +18,8 @@ public class TheLostIsland : ModuleRules
 			"StateTreeModule",
 			"GameplayStateTreeModule",
 			"UMG",
-			"Slate"
+            "Niagara",
+            "Slate"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] { });
