@@ -5,11 +5,13 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Interface/InteractableInterface.h"
+#include "GameplayTagContainer.h"
 #include "InteractableBase.generated.h"
 
 class USoundBase;
 //class UNiagaraSystem;
 class UAnimMontage;
+class AGameManager;
 
 USTRUCT(BlueprintType)
 struct FInteractionState
@@ -62,6 +64,8 @@ protected:
 	// True until the first successful interaction.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Interaction")
 	bool bFirstInteraction = true;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Interaction")
+	FGameplayTag InteractionEvent;
 	
 	// Interaction feedback.
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Feedback")
@@ -101,6 +105,7 @@ public:
 	virtual FText GetDisplayName() const;
 	virtual FText GetDescription() const;
 	virtual FText GetActionText() const;
+	virtual FGameplayTag GetInteractionEvent() const override;
 	// Sets the current interaction state.
 	UFUNCTION(BlueprintCallable)
 	void SetCurrentState(int32 NewState);
@@ -108,7 +113,5 @@ public:
 	UFUNCTION(BlueprintPure)
 	int32 GetCurrentState() const;
 
-	// Actor
-	virtual void Tick(float DeltaTime) override;
 
 };

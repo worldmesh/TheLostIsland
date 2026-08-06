@@ -7,7 +7,11 @@
 #include "TheLostIslandCharacter.h"
 #include "Sound/SoundBase.h"
 //#include "NiagaraSystem.h"
+#include "GameManager.h"
+#include "Kismet/GameplayStatics.h"
 #include "Animation/AnimMontage.h"
+
+
 
 // Sets default values
 AInteractableBase::AInteractableBase()
@@ -63,12 +67,6 @@ void AInteractableBase::Interact_Implementation()
 
 }
 
-// Called every frame
-void AInteractableBase::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-}
 
 FText AInteractableBase::GetDisplayName() const
 {
@@ -95,6 +93,11 @@ FText AInteractableBase::GetActionText() const
 	return FText::GetEmpty();
 }
 
+FGameplayTag AInteractableBase::GetInteractionEvent() const
+{
+	return InteractionEvent;
+}
+
 int32 AInteractableBase::GetCurrentState() const
 {
 	return CurrentState;
@@ -110,4 +113,5 @@ void AInteractableBase::SetCurrentState(int32 NewState)
 	CurrentState = NewState;
 
 	OnStateChanged();
+
 }

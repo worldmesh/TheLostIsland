@@ -9,7 +9,7 @@
 AGameManager::AGameManager()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 }
 
@@ -22,17 +22,37 @@ void AGameManager::BeginPlay()
 	
 }
 
-// Called every frame
-void AGameManager::Tick(float DeltaTime)
+void AGameManager::EvaluateTransitions()
 {
-	Super::Tick(DeltaTime);
-
-}
-
-void AGameManager::FuelPickedUp()
-{
-    if (Boat)
+    for (const FTransition& Transition : Transitions)
     {
-        Boat->SetCurrentState(1);
+        bool bConditionsMet = true;
+
+        for (const FCondition& Condition : Transition.Conditions)
+        {
+            if (!Condition.Object)
+            {
+                bConditionsMet = false;
+                break;
+            }
+
+            if (Condition.Object->GetCurrentState() != Condition.RequiredState)
+            {
+                bConditionsMet = false;
+                break;
+            }
+        }
+
+        if (bConditionsMet)
+        {
+            for (const FAction& Action : Transition.Actions)
+            {
+                if (Action.Object)
+                {
+                    Action.Object->SetCurrentState(Action.NewState);
+                }
+            }
+        }
     }
 }
+

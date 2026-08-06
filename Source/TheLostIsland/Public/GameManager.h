@@ -4,9 +4,46 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "GameplayTagContainer.h"
 #include "GameManager.generated.h"
 
 class AInteractableBase;
+
+USTRUCT(BlueprintType)
+struct FCondition
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Condition")
+	AInteractableBase* Object = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Condition")
+	int32 RequiredState = 0;
+};
+
+USTRUCT(BlueprintType)
+struct FAction
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Action")
+	AInteractableBase* Object = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Action")
+	int32 NewState = 0;
+};
+
+USTRUCT(BlueprintType)
+struct FTransition
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Transition")
+	TArray<FCondition> Conditions;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Transition")
+	TArray<FAction> Actions;
+};
 
 UCLASS()
 class THELOSTISLAND_API AGameManager : public AActor
@@ -14,20 +51,20 @@ class THELOSTISLAND_API AGameManager : public AActor
 	GENERATED_BODY()
 	
 public:	
-	// Sets default values for this actor's properties
 	AGameManager();
-
+	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	// Main interactable objects.
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "World")
-	AInteractableBase* Boat;
+
 
 public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-	void FuelPickedUp();
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Transitions")
+	TArray<FTransition> Transitions;
+
+	UFUNCTION(BlueprintCallable)
+	void EvaluateTransitions();
+	
 
 };

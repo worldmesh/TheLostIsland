@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
+#include "GameplayTagContainer.h"
 #include "InteractableInterface.generated.h"
 
 // This class does not need to be modified.
@@ -29,5 +30,7 @@ public:
 	virtual FText GetDisplayName() const = 0;
 
 	virtual FText GetActionText() const = 0;
+
+	virtual FGameplayTag GetInteractionEvent() const = 0;
 
 };
