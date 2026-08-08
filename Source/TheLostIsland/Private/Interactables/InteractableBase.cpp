@@ -58,10 +58,6 @@ void AInteractableBase::OnInteractionBoxEndOverlap(UPrimitiveComponent* Overlapp
 	}
 }
 
-void AInteractableBase::OnStateChanged()
-{
-}
-
 void AInteractableBase::Interact_Implementation()
 {
 
@@ -70,48 +66,20 @@ void AInteractableBase::Interact_Implementation()
 
 FText AInteractableBase::GetDisplayName() const
 {
-	return DisplayName;
+	return AWorldObject::GetDisplayName();
 }
 
 FText AInteractableBase::GetDescription() const
 {
-	if (States.IsValidIndex(CurrentState))
-	{
-		return States[CurrentState].Description;
-	}
-
-	return FText::GetEmpty();
+	return AWorldObject::GetDescription();
 }
 
 FText AInteractableBase::GetActionText() const
 {
-	if (States.IsValidIndex(CurrentState))
-	{
-		return States[CurrentState].ActionText;
-	}
-
-	return FText::GetEmpty();
+	return AWorldObject::GetActionText();
 }
 
 FGameplayTag AInteractableBase::GetInteractionEvent() const
 {
 	return InteractionEvent;
-}
-
-int32 AInteractableBase::GetCurrentState() const
-{
-	return CurrentState;
-}
-
-void AInteractableBase::SetCurrentState(int32 NewState)
-{
-	if (CurrentState == NewState)
-	{
-		return;
-	}
-
-	CurrentState = NewState;
-
-	OnStateChanged();
-
 }

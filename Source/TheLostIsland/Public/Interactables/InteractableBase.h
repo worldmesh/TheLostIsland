@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Interface/InteractableInterface.h"
+#include "WorldObject/WorldObject.h"
 #include "GameplayTagContainer.h"
 #include "InteractableBase.generated.h"
 
@@ -13,22 +14,9 @@ class USoundBase;
 class UAnimMontage;
 class AGameManager;
 
-USTRUCT(BlueprintType)
-struct FInteractionState
-{
-	GENERATED_BODY()
-
-	// Description shown in interaction window.
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")
-	FText Description;
-
-	// Action shown to the player.
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")
-	FText ActionText;
-};
 
 UCLASS()
-class THELOSTISLAND_API AInteractableBase : public AActor, public IInteractableInterface
+class THELOSTISLAND_API AInteractableBase : public AWorldObject, public IInteractableInterface
 {
 	GENERATED_BODY()
 	
@@ -49,21 +37,7 @@ protected:
 
 
 	///Interaction Data///
-	//Display name show in interaction widget.
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Interaction")
-	FText DisplayName;
-	// All interaction states for this object.
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Interaction")
-	TArray<FInteractionState> States;
-	// Current state index.
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Interaction")
-	int32 CurrentState = 0;
-	// Can this object currently be interacted with?
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Interaction")
-	bool bCanInteract = true;
-	// True until the first successful interaction.
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Interaction")
-	bool bFirstInteraction = true;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Interaction")
 	FGameplayTag InteractionEvent;
 	
@@ -93,8 +67,6 @@ protected:
 		UPrimitiveComponent* OtherComp,
 		int32 OtherBodyIndex);
 
-	///State///
-	virtual void OnStateChanged();
 
 public:	
 
@@ -102,16 +74,11 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Interaction")
 	void Interact();
 	virtual void Interact_Implementation();
-	virtual FText GetDisplayName() const;
+	virtual FText GetDisplayName() const override;
 	virtual FText GetDescription() const;
 	virtual FText GetActionText() const;
 	virtual FGameplayTag GetInteractionEvent() const override;
-	// Sets the current interaction state.
-	UFUNCTION(BlueprintCallable)
-	void SetCurrentState(int32 NewState);
-	// Returns the current interaction state.
-	UFUNCTION(BlueprintPure)
-	int32 GetCurrentState() const;
+
 
 
 };

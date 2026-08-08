@@ -28,6 +28,12 @@ void APickupBase::BeginPlay()
 
 void APickupBase::Interact_Implementation()
 {
+    if (SetCurrentState(1))
+    {
+        NotifyGameManager();
+    }
+
+	Destroy();
 }
 
 

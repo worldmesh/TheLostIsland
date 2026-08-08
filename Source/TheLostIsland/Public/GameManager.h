@@ -7,7 +7,7 @@
 #include "GameplayTagContainer.h"
 #include "GameManager.generated.h"
 
-class AInteractableBase;
+class AWorldObject;
 
 USTRUCT(BlueprintType)
 struct FCondition
@@ -15,7 +15,7 @@ struct FCondition
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Condition")
-	AInteractableBase* Object = nullptr;
+	AWorldObject* Object = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Condition")
 	int32 RequiredState = 0;
@@ -27,7 +27,7 @@ struct FAction
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Action")
-	AInteractableBase* Object = nullptr;
+	AWorldObject* Object = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Action")
 	int32 NewState = 0;
