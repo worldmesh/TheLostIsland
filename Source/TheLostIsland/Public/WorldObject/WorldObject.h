@@ -72,20 +72,20 @@ public:
 
 protected:
 	
-	// Called when the game starts or when spawned
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "World Object")
-	FText DisplayName;
 	virtual void BeginPlay() override;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "World Object")
+	// Called when the game starts or when spawned
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "01 GAME LOGIC")
+	FText DisplayName;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "01 GAME LOGIC")
 	TArray<FInteractionState> States;
 	// Current state index.
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "World Object")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "01 GAME LOGIC")
 	int32 CurrentState = 0;
 	virtual void OnStateChanged();
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "World Object")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "01 GAME LOGIC")
 	bool bCanInteract = true;
 	// True until the first successful interaction.
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "World Object")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "01 GAME LOGIC")
 	bool bFirstInteraction = true;
 
 	void NotifyGameManager();
@@ -93,13 +93,13 @@ protected:
 
 public:	
 
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "World Object")
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "01 GAME LOGIC")
 	FText GetDisplayName() const;
 
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "World Object")
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "01 GAME LOGIC")
 	FText GetDescription() const;
 
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "World Object")
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "01 GAME LOGIC")
 	FText GetActionText() const;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")

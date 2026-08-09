@@ -38,10 +38,13 @@ struct FTransition
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Transition")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "01 GAME LOGIC")
+	FText TransitionName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "01 GAME LOGIC")
 	TArray<FCondition> Conditions;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Transition")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "01 GAME LOGIC")
 	TArray<FAction> Actions;
 };
 
