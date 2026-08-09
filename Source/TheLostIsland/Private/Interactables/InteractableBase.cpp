@@ -6,11 +6,8 @@
 #include "Components/BoxComponent.h"
 #include "TheLostIslandCharacter.h"
 #include "Sound/SoundBase.h"
-//#include "NiagaraSystem.h"
 #include "GameManager.h"
 #include "Kismet/GameplayStatics.h"
-#include "Animation/AnimMontage.h"
-
 
 
 // Sets default values

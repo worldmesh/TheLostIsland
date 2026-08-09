@@ -20,6 +20,8 @@ public class TheLostIsland : ModuleRules
 			"GameplayStateTreeModule",
 			"UMG",
             "Niagara",
+            "MovieScene",
+            "LevelSequence",
             "Slate"
 		});
 

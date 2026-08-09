@@ -4,9 +4,44 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+//#include "LevelSequence.h"
+#include "Components/StaticMeshComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "NiagaraFunctionLibrary.h"
 #include "WorldObject.generated.h"
 
+class UStaticMesh;
+class USoundBase;
+class UAnimationAsset;
+class ULevelSequence;
+class UNiagaraSystem;
 
+USTRUCT(BlueprintType)
+struct FStateEffects
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
+	UStaticMesh* StaticMesh = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
+	UMaterialInterface* Material = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
+	int32 MaterialSlot = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
+	USoundBase* Sound = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
+	UAnimationAsset* Animation = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
+	ULevelSequence* Sequencer = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
+	UNiagaraSystem* Niagara = nullptr;
+};
 
 USTRUCT(BlueprintType)
 struct FInteractionState
@@ -20,6 +55,9 @@ struct FInteractionState
 	// Action shown to the player.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")
 	FText ActionText;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
+	FStateEffects Effects;
 };
 
 
@@ -49,6 +87,7 @@ protected:
 	// True until the first successful interaction.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "World Object")
 	bool bFirstInteraction = true;
+
 	void NotifyGameManager();
 
 
@@ -71,7 +110,10 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	bool SetCurrentState(int32 NewState);
+
 	// Returns the current interaction state.
 	UFUNCTION(BlueprintPure)
 	int32 GetCurrentState() const;
+
+	void ApplyStateEffects();
 };

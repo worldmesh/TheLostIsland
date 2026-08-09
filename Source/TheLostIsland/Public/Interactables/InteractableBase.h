@@ -9,12 +9,6 @@
 #include "GameplayTagContainer.h"
 #include "InteractableBase.generated.h"
 
-class USoundBase;
-//class UNiagaraSystem;
-class UAnimMontage;
-class AGameManager;
-
-
 UCLASS()
 class THELOSTISLAND_API AInteractableBase : public AWorldObject, public IInteractableInterface
 {
@@ -40,18 +34,7 @@ protected:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Interaction")
 	FGameplayTag InteractionEvent;
-	
-	// Interaction feedback.
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Feedback")
-	class USoundBase* InteractSound;
-
-	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Feedback")
-	//class UNiagaraSystem* InteractEffect;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Feedback")
-	class UAnimMontage* InteractMontage;
-	
-	///Collision Overlaps///
+		///Collision Overlaps///
 	UFUNCTION()
 	void OnInteractionBoxBeginOverlap(
 		UPrimitiveComponent* OverlappedComponent,
