@@ -57,19 +57,33 @@ ATheLostIslandCharacter::ATheLostIslandCharacter()
 
 void ATheLostIslandCharacter::SetCurrentInteractable(AActor* NewInteractable)
 {
+	UE_LOG(LogTemp, Warning,
+		TEXT("SetCurrentInteractable: %s"),
+		NewInteractable ? *NewInteractable->GetName() : TEXT("NULL"));
+
 	CurrentInteractable = NewInteractable;
 
-	if (CurrentInteractable)
+	if (!CurrentInteractable)
 	{
-		IInteractableInterface* Interactable =
-			Cast<IInteractableInterface>(CurrentInteractable);
+		return;
+	}
 
-		if (Interactable)
-		{
-			ShowInteractionWidget(
-				Interactable->GetDisplayName(),
-				Interactable->GetActionText());
-		}
+	IInteractableInterface* Interactable =
+		Cast<IInteractableInterface>(CurrentInteractable);
+
+	UE_LOG(LogTemp, Warning,
+		TEXT("Interactable Cast: %s"),
+		Interactable ? TEXT("SUCCESS") : TEXT("FAILED"));
+
+	if (Interactable)
+	{
+		UE_LOG(LogTemp, Warning,
+			TEXT("Calling ShowInteractionWidget"));
+
+		ShowInteractionWidget(
+			Interactable->GetDisplayName(),
+			Interactable->GetActionText()
+		);
 	}
 }
 
@@ -96,6 +110,37 @@ void ATheLostIslandCharacter::RefreshInteractionWidget()
 			Interactable->GetDisplayName(),
 			Interactable->GetActionText());
 	}
+}
+
+void ATheLostIslandCharacter::SetCurrentWorldObject(AWorldObject* NewWorldObject)
+{
+	if (!NewWorldObject)
+	{
+		return;
+	}
+
+	// Если предыдущий таймер ещё работает — отменяем его
+	GetWorldTimerManager().ClearTimer(WorldObjectWidgetTimerHandle);
+
+	// Показываем World Object
+	ShowInteractionWidget(
+		NewWorldObject->GetDisplayName(),
+		NewWorldObject->GetActionText()
+	);
+
+	// Запускаем таймер скрытия
+	GetWorldTimerManager().SetTimer(
+		WorldObjectWidgetTimerHandle,
+		this,
+		&ATheLostIslandCharacter::HideWorldObjectWidget,
+		NewWorldObject->GetDisplayTime(),
+		false
+	);
+}
+
+void ATheLostIslandCharacter::HideWorldObjectWidget()
+{
+	HideInteractionWidget();
 }
 
 void ATheLostIslandCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)

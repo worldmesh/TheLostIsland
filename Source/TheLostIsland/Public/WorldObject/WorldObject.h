@@ -62,6 +62,13 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "World Object")
 	FText GetActionText() const;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")
+	float DisplayTime = 1.5f;
+
+	UFUNCTION(BlueprintPure, Category = "Interaction")
+	float GetDisplayTime() const;
+
 	UFUNCTION(BlueprintCallable)
 	bool SetCurrentState(int32 NewState);
 	// Returns the current interaction state.

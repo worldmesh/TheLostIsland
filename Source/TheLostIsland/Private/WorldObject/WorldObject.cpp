@@ -22,10 +22,16 @@ void AWorldObject::BeginPlay()
 
 void AWorldObject::OnStateChanged()
 {
+    NotifyGameManager();
 }
 
 void AWorldObject::NotifyGameManager()
 {
+    UE_LOG(LogTemp, Warning,
+        TEXT("NotifyGameManager: %s State=%d"),
+        *GetName(),
+        CurrentState);
+
     AGameManager* GameManager =
         Cast<AGameManager>(
             UGameplayStatics::GetActorOfClass(
@@ -83,5 +89,10 @@ FText AWorldObject::GetActionText() const
     }
 
     return FText::GetEmpty();
+}
+
+float AWorldObject::GetDisplayTime() const
+{
+    return DisplayTime;
 }
 

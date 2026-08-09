@@ -57,7 +57,7 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-
+	bool bIsEvaluatingTransitions = false;
 
 public:	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Transitions")
@@ -65,6 +65,7 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void EvaluateTransitions();
-	
+
+		
 
 };

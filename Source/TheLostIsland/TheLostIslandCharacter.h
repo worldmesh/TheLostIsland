@@ -64,6 +64,9 @@ protected:
 	UPROPERTY()
 	AGameManager* GameManager;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")
+	float WorldObjectDisplayTime = 1.5f;
+
 public:
 
 	/** Constructor */
@@ -76,6 +79,7 @@ protected:
 
 protected:
 
+	virtual void BeginPlay() override;
 	/** Called for movement input */
 	void Move(const FInputActionValue& Value);
 
@@ -85,7 +89,11 @@ protected:
 	/** Called for looking interact */
 	void Interact();
 
-	virtual void BeginPlay() override;
+	FTimerHandle WorldObjectWidgetTimerHandle;
+
+	void HideWorldObjectWidget();
+
+	
 
 public:
 
@@ -105,9 +113,13 @@ public:
 	UFUNCTION(BlueprintCallable, Category="Input")
 	virtual void DoJumpEnd();
 
-public:
-
+	UFUNCTION(BlueprintCallable, Category = "Interaction")
 	void SetCurrentInteractable(AActor* NewInteractable);
+
+	UFUNCTION(BlueprintCallable, Category = "Interaction")
+	void SetCurrentWorldObject(AWorldObject* NewWorldObject);
+
+public:
 
 	void ClearCurrentInteractable();
 

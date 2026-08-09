@@ -24,8 +24,15 @@ void AGameManager::BeginPlay()
 
 void AGameManager::EvaluateTransitions()
 {
-    for (const FTransition& Transition : Transitions)
+    if (bIsEvaluatingTransitions)
     {
+        return;
+    }
+
+    bIsEvaluatingTransitions = true;
+
+    for (const FTransition& Transition : Transitions)
+    {     
         bool bConditionsMet = true;
 
         for (const FCondition& Condition : Transition.Conditions)
@@ -54,5 +61,6 @@ void AGameManager::EvaluateTransitions()
             }
         }
     }
+    bIsEvaluatingTransitions = false;
 }
 
