@@ -2,6 +2,7 @@
 
 
 #include "Interactables/InteractableBase.h"
+#include "Interface/InteractionComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/BoxComponent.h"
 #include "TheLostIslandCharacter.h"
@@ -34,24 +35,36 @@ void AInteractableBase::BeginPlay()
 	
 }
 
-void AInteractableBase::OnInteractionBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void AInteractableBase::OnInteractionBoxBeginOverlap(
+	UPrimitiveComponent* OverlappedComponent,
+	AActor* OtherActor,
+	UPrimitiveComponent* OtherComp,
+	int32 OtherBodyIndex,
+	bool bFromSweep,
+	const FHitResult& SweepResult)
 {
-
-	ATheLostIslandCharacter* Character = Cast<ATheLostIslandCharacter>(OtherActor);
-
-	if (Character)
+	if (OtherActor)
 	{
-		Character->SetCurrentInteractable(this);
+		// Ищем компонент у любого актера, который вошел в триггер
+		if (UInteractionComponent* InteractionComp = OtherActor->FindComponentByClass<UInteractionComponent>())
+		{
+			InteractionComp->SetCurrentInteractable(this);
+		}
 	}
 }
 
-void AInteractableBase::OnInteractionBoxEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+void AInteractableBase::OnInteractionBoxEndOverlap(
+	UPrimitiveComponent* OverlappedComponent,
+	AActor* OtherActor,
+	UPrimitiveComponent* OtherComp,
+	int32 OtherBodyIndex)
 {
-	ATheLostIslandCharacter* Character = Cast<ATheLostIslandCharacter>(OtherActor);
-
-	if (Character)
+	if (OtherActor)
 	{
-		Character->ClearCurrentInteractable();
+		if (UInteractionComponent* InteractionComp = OtherActor->FindComponentByClass<UInteractionComponent>())
+		{
+			InteractionComp->ClearCurrentInteractable();
+		}
 	}
 }
 

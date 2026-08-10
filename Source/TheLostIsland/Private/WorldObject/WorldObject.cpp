@@ -9,7 +9,6 @@
 #include "LevelSequence.h"
 #include "LevelSequencePlayer.h"
 #include "LevelSequenceActor.h"
-#include "WorldObject/WorldObject.h"
 
 // Sets default values
 AWorldObject::AWorldObject()

@@ -1,4 +1,5 @@
 #include "WorldObject/EventObject.h"
+#include "Interface/InteractionComponent.h"
 #include "TheLostIslandCharacter.h"
 
 AEventObject::AEventObject()
@@ -18,21 +19,19 @@ AEventObject::AEventObject()
 	);
 }
 
-void AEventObject::OnEventBeginOverlap(
-	UPrimitiveComponent* OverlappedComponent,
-	AActor* OtherActor,
-	UPrimitiveComponent* OtherComp,
-	int32 OtherBodyIndex,
-	bool bFromSweep,
-	const FHitResult& SweepResult)
+void AEventObject::OnEventBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (!OtherActor)
-	{
-		return;
-	}
+	if (!OtherActor || OtherActor == this) return;
 
-	if (OtherActor->IsA<ATheLostIslandCharacter>())
+	if (UInteractionComponent* InteractionComp = OtherActor->FindComponentByClass<UInteractionComponent>())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("EventObject: Player entered event zone"));
+		// 1. Выбираем сырой AActor (TargetObject или this)
+		AActor* RawTarget = TargetObject ? TargetObject : this;
+
+		// 2. Приводим его к AWorldObject* (так как SetCurrentWorldObject ждет именно его)
+		if (AWorldObject* WorldObj = Cast<AWorldObject>(RawTarget))
+		{
+			InteractionComp->SetCurrentWorldObject(WorldObj);
+		}
 	}
 }
