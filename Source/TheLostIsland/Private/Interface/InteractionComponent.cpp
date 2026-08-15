@@ -107,6 +107,14 @@ void UInteractionComponent::Interact()
 		// 1. Выполняем само действие (подбор, заливка топлива, нажатие рычага)
 		Interactable->Interact();
 
+		// 1.5 Если объект в результате интеракта уже уничтожил себя —
+		// не пытаемся читать у него текст, просто прячем виджет
+		if (!IsValid(CurrentInteractable))
+		{
+			ClearCurrentInteractable();
+			return;
+		}
+
 		// 2. СРАЗУ же обновляем виджет, чтобы отобразить новое состояние и текст!
 		RefreshInteractionWidget();
 	}

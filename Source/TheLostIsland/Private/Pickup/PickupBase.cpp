@@ -10,6 +10,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Components/BoxComponent.h"
 #include "TheLostIslandCharacter.h"
+#include "Interface/InteractionComponent.h"
 
 // Sets default values
 APickupBase::APickupBase()
@@ -28,13 +29,56 @@ void APickupBase::BeginPlay()
 
 void APickupBase::Interact_Implementation()
 {
+    if (!bCanInteract)
+    {
+        // Защита от повторного нажатия E, пока идёт таймер до уничтожения
+        return;
+    }
+
     if (SetCurrentState(1))
     {
         NotifyGameManager();
     }
 
-	Destroy();
+    // Блокируем повторный интеракт
+    bCanInteract = false;
+
+    // Прячем меш сразу — визуально предмет "подобран"
+    if (Mesh)
+    {
+        Mesh->SetVisibility(false, true);
+    }
+
+    // Сам актор и коллизия ещё живы DisplayTime секунд, чтобы виджет
+    // успел показать текст нового состояния (например "Канистра подобрана")
+    GetWorldTimerManager().SetTimer(
+        DestroyTimerHandle,
+        this,
+        &APickupBase::DestroyPickup,
+        GetDisplayTime(),
+        false
+    );
 }
 
+void APickupBase::DestroyPickup()
+{
+    // Явно прячем виджет у всех, кто сейчас в зоне интеракции —
+    // не полагаемся на то, что Destroy() сам корректно пришлёт EndOverlap
+    if (InteractionBox)
+    {
+        TArray<AActor*> OverlappingActors;
+        InteractionBox->GetOverlappingActors(OverlappingActors);
+
+        for (AActor* OverlappingActor : OverlappingActors)
+        {
+            if (UInteractionComponent* InteractionComp = OverlappingActor->FindComponentByClass<UInteractionComponent>())
+            {
+                InteractionComp->ClearCurrentInteractable();
+            }
+        }
+    }
+
+    Destroy();
+}
 
 
