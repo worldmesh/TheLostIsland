@@ -1,10 +1,9 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-//#include "LevelSequence.h"
 #include "Components/StaticMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "NiagaraFunctionLibrary.h"
@@ -121,6 +120,22 @@ public:
 	// Returns the current interaction state.
 	UFUNCTION(BlueprintPure)
 	int32 GetCurrentState() const;
+
+	// Сколько всего стейтов у ЭТОГО объекта (у инстанса на уровне, а не у
+	// блюпринт-класса). Нужно, чтобы GameManager мог проверить, что номер
+	// стейта в Condition/Action вообще существует.
+	UFUNCTION(BlueprintPure, Category = "01 GAME LOGIC")
+	int32 GetStateCount() const;
+
+	// Читаемое имя стейта по индексу (поле StateName). Пустая строка, если
+	// индекс невалиден или имя не заполнено.
+	UFUNCTION(BlueprintPure, Category = "01 GAME LOGIC")
+	FString GetStateName(int32 StateIndex) const;
+
+	// ActionText конкретного стейта по индексу (а не текущего, как GetActionText).
+	// Пустой FText, если индекс невалиден.
+	UFUNCTION(BlueprintPure, Category = "01 GAME LOGIC")
+	FText GetActionTextForState(int32 StateIndex) const;
 
 	void ApplyStateEffects();
 };

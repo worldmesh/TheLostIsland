@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #include "WorldObject/WorldObject.h"
 #include "GameManager.h"
@@ -34,7 +34,10 @@ void AWorldObject::OnStateChanged()
 
 void AWorldObject::NotifyGameManager()
 {
-    UE_LOG(LogTemp, Warning,
+    // Было Warning — сыпалось в лог на каждую смену состояния и мешало
+    // искать настоящие ошибки. Verbose включается по надобности командой
+    // "log LogTemp Verbose" в консоли.
+    UE_LOG(LogTemp, Verbose,
         TEXT("NotifyGameManager: %s State=%d"),
         *GetName(),
         CurrentState);
@@ -50,7 +53,7 @@ void AWorldObject::NotifyGameManager()
         GameManager->EvaluateTransitions();
     }
 
-    UE_LOG(LogTemp, Warning, TEXT("EvaluateTransitions CALLED"));
+    UE_LOG(LogTemp, Verbose, TEXT("EvaluateTransitions CALLED"));
 }
 
 bool AWorldObject::SetCurrentState(int32 NewState)
@@ -70,6 +73,31 @@ bool AWorldObject::SetCurrentState(int32 NewState)
 int32 AWorldObject::GetCurrentState() const
 {
     return CurrentState;
+}
+
+int32 AWorldObject::GetStateCount() const
+{
+    return States.Num();
+}
+
+FString AWorldObject::GetStateName(int32 StateIndex) const
+{
+    if (!States.IsValidIndex(StateIndex))
+    {
+        return FString();
+    }
+
+    return States[StateIndex].StateName;
+}
+
+FText AWorldObject::GetActionTextForState(int32 StateIndex) const
+{
+    if (!States.IsValidIndex(StateIndex))
+    {
+        return FText::GetEmpty();
+    }
+
+    return States[StateIndex].ActionText;
 }
 
 

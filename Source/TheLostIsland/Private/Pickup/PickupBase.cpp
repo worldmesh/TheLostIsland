@@ -1,15 +1,9 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "Pickup/PickupBase.h"
-#include "Sound/SoundBase.h"
-//#include "NiagaraSystem.h"
-#include "GameManager.h"
-#include "Kismet/GameplayStatics.h"
-#include "Animation/AnimMontage.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/BoxComponent.h"
-#include "TheLostIslandCharacter.h"
 #include "Interface/InteractionComponent.h"
 
 // Sets default values
@@ -35,10 +29,9 @@ void APickupBase::Interact_Implementation()
         return;
     }
 
-    if (SetCurrentState(1))
-    {
-        NotifyGameManager();
-    }
+    // SetCurrentState сам вызывает OnStateChanged() -> NotifyGameManager(),
+    // поэтому отдельный вызов здесь не нужен: он гонял EvaluateTransitions дважды.
+    SetCurrentState(1);
 
     // Блокируем повторный интеракт
     bCanInteract = false;

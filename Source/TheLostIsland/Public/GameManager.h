@@ -14,6 +14,12 @@ struct FCondition
 {
 	GENERATED_BODY()
 
+	// Автоподпись строки в Details, например: "BP_Fuse == 1 (Podobran)".
+	// Заполняется автоматически при любом изменении в GameManager и по кнопке
+	// "Refresh Transition Labels". Руками не редактируется, на геймплей не влияет.
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Condition")
+	FString Label;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Condition")
 	AWorldObject* Object = nullptr;
 
@@ -25,6 +31,10 @@ USTRUCT(BlueprintType)
 struct FAction
 {
 	GENERATED_BODY()
+
+	// См. комментарий к FCondition::Label.
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Action")
+	FString Label;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Action")
 	AWorldObject* Object = nullptr;
@@ -41,10 +51,12 @@ struct FTransition
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "01 GAME LOGIC")
 	FText TransitionName;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "01 GAME LOGIC")
+	// TitleProperty = "Label" — строки массива показывают человекочитаемую
+	// подпись вместо "N members".
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "01 GAME LOGIC", meta = (TitleProperty = "Label"))
 	TArray<FCondition> Conditions;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "01 GAME LOGIC")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "01 GAME LOGIC", meta = (TitleProperty = "Label"))
 	TArray<FAction> Actions;
 };
 
@@ -52,23 +64,31 @@ UCLASS()
 class THELOSTISLAND_API AGameManager : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	AGameManager();
-	
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 	bool bIsEvaluatingTransitions = false;
 
-public:	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Transitions")
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Transitions", meta = (TitleProperty = "TransitionName"))
 	TArray<FTransition> Transitions;
 
 	UFUNCTION(BlueprintCallable)
 	void EvaluateTransitions();
 
-		
+	// Пересобирает подписи (Label) у всех Conditions/Actions.
+	// CallInEditor рисует кнопку прямо в Details у GameManager — нажимать,
+	// если переименовал стейты у объектов и подписи устарели.
+	UFUNCTION(CallInEditor, BlueprintCallable, Category = "Transitions")
+	void RefreshTransitionLabels();
+
+#if WITH_EDITOR
+	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
+#endif
 
 };

@@ -1,14 +1,10 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "Interactables/InteractableBase.h"
 #include "Interface/InteractionComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/BoxComponent.h"
-#include "TheLostIslandCharacter.h"
-#include "Sound/SoundBase.h"
-#include "GameManager.h"
-#include "Kismet/GameplayStatics.h"
 
 
 // Sets default values
@@ -32,7 +28,7 @@ AInteractableBase::AInteractableBase()
 void AInteractableBase::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 }
 
 void AInteractableBase::OnInteractionBoxBeginOverlap(
@@ -48,7 +44,14 @@ void AInteractableBase::OnInteractionBoxBeginOverlap(
 		// Ищем компонент у любого актера, который вошел в триггер
 		if (UInteractionComponent* InteractionComp = OtherActor->FindComponentByClass<UInteractionComponent>())
 		{
-			InteractionComp->SetCurrentInteractable(this);
+			// Если компонент работает по трейсу — цель выбирает он сам,
+			// иначе оверлап и трейс будут спорить друг с другом.
+			// Бокс при этом остаётся: он по-прежнему нужен PickupBase,
+			// чтобы найти всех, кто рядом, перед уничтожением объекта.
+			if (!InteractionComp->IsUsingLineTrace())
+			{
+				InteractionComp->SetCurrentInteractable(this);
+			}
 		}
 	}
 }
@@ -63,7 +66,10 @@ void AInteractableBase::OnInteractionBoxEndOverlap(
 	{
 		if (UInteractionComponent* InteractionComp = OtherActor->FindComponentByClass<UInteractionComponent>())
 		{
-			InteractionComp->ClearCurrentInteractable();
+			if (!InteractionComp->IsUsingLineTrace())
+			{
+				InteractionComp->ClearCurrentInteractable();
+			}
 		}
 	}
 }

@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -7,9 +7,6 @@
 #include "PickupBase.generated.h"
 
 
-class USoundBase;
-//class UNiagaraSystem;
-class UAnimMontage;
 
 UCLASS()
 class THELOSTISLAND_API APickupBase : public AInteractableBase {
