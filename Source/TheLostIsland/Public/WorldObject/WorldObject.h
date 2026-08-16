@@ -48,6 +48,9 @@ struct FInteractionState
 {
 	GENERATED_BODY()
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")
+	FString StateName;
+
 	// Description shown in interaction window.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")
 	FText Description;
@@ -76,7 +79,7 @@ protected:
 	// Called when the game starts or when spawned
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "01 GAME LOGIC")
 	FText DisplayName;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "01 GAME LOGIC")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "01 GAME LOGIC", meta = (TitleProperty = "StateName"))
 	TArray<FInteractionState> States;
 	// Current state index.
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "01 GAME LOGIC")
