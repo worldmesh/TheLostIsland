@@ -48,6 +48,8 @@ struct FInteractionState
 {
 	GENERATED_BODY()
 
+	// Название стейта только для удобства в редакторе (на геймплей не влияет).
+	// Например: "Осмотреть", "Заправлена", "Уехала".
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")
 	FString StateName;
 
@@ -79,6 +81,8 @@ protected:
 	// Called when the game starts or when spawned
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "01 GAME LOGIC")
 	FText DisplayName;
+	// TitleProperty заставляет каждую строку массива в Details показывать
+	// StateName вместо "Index [0]" — сразу видно, какой стейт за что отвечает.
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "01 GAME LOGIC", meta = (TitleProperty = "StateName"))
 	TArray<FInteractionState> States;
 	// Current state index.
