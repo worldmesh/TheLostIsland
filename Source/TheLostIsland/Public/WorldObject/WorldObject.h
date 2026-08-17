@@ -47,16 +47,12 @@ struct FInteractionState
 {
 	GENERATED_BODY()
 
-	// Название стейта только для удобства в редакторе (на геймплей не влияет).
-	// Например: "Осмотреть", "Заправлена", "Уехала".
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")
 	FString StateName;
 
-	// Description shown in interaction window.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")
 	FText Description;
 
-	// Action shown to the player.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")
 	FText ActionText;
 
@@ -71,26 +67,20 @@ class THELOSTISLAND_API AWorldObject : public AActor
 	GENERATED_BODY()
 	
 public:	
-	// Sets default values for this actor's properties
 	AWorldObject();
 
 protected:
 	
 	virtual void BeginPlay() override;
-	// Called when the game starts or when spawned
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "01 GAME LOGIC")
 	FText DisplayName;
-	// TitleProperty заставляет каждую строку массива в Details показывать
-	// StateName вместо "Index [0]" — сразу видно, какой стейт за что отвечает.
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "01 GAME LOGIC", meta = (TitleProperty = "StateName"))
 	TArray<FInteractionState> States;
-	// Current state index.
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "01 GAME LOGIC")
 	int32 CurrentState = 0;
 	virtual void OnStateChanged();
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "01 GAME LOGIC")
 	bool bCanInteract = true;
-	// True until the first successful interaction.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "01 GAME LOGIC")
 	bool bFirstInteraction = true;
 
@@ -117,23 +107,15 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool SetCurrentState(int32 NewState);
 
-	// Returns the current interaction state.
 	UFUNCTION(BlueprintPure)
 	int32 GetCurrentState() const;
 
-	// Сколько всего стейтов у ЭТОГО объекта (у инстанса на уровне, а не у
-	// блюпринт-класса). Нужно, чтобы GameManager мог проверить, что номер
-	// стейта в Condition/Action вообще существует.
 	UFUNCTION(BlueprintPure, Category = "01 GAME LOGIC")
 	int32 GetStateCount() const;
 
-	// Читаемое имя стейта по индексу (поле StateName). Пустая строка, если
-	// индекс невалиден или имя не заполнено.
 	UFUNCTION(BlueprintPure, Category = "01 GAME LOGIC")
 	FString GetStateName(int32 StateIndex) const;
 
-	// ActionText конкретного стейта по индексу (а не текущего, как GetActionText).
-	// Пустой FText, если индекс невалиден.
 	UFUNCTION(BlueprintPure, Category = "01 GAME LOGIC")
 	FText GetActionTextForState(int32 StateIndex) const;
 

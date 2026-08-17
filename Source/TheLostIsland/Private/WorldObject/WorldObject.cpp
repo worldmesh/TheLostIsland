@@ -10,15 +10,12 @@
 #include "LevelSequencePlayer.h"
 #include "LevelSequenceActor.h"
 
-// Sets default values
 AWorldObject::AWorldObject()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 
 }
 
-// Called when the game starts or when spawned
 void AWorldObject::BeginPlay()
 {
 	Super::BeginPlay();
@@ -34,9 +31,6 @@ void AWorldObject::OnStateChanged()
 
 void AWorldObject::NotifyGameManager()
 {
-    // Было Warning — сыпалось в лог на каждую смену состояния и мешало
-    // искать настоящие ошибки. Verbose включается по надобности командой
-    // "log LogTemp Verbose" в консоли.
     UE_LOG(LogTemp, Verbose,
         TEXT("NotifyGameManager: %s State=%d"),
         *GetName(),
@@ -50,10 +44,6 @@ void AWorldObject::NotifyGameManager()
 
     if (GameManager)
     {
-        // Сначала сообщаем «вот этот объект изменился», потом уже прогоняем
-        // транзишны. Порядок важен для читаемости уведомлений: сперва
-        // «Подобран предохранитель», и только потом «Генератор заработал»,
-        // потому что второе — следствие первого.
         GameManager->ReportStateChanged(this);
 
         GameManager->EvaluateTransitions();
