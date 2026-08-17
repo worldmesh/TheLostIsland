@@ -113,6 +113,18 @@ void AGameManager::PostEditChangeProperty(FPropertyChangedEvent& PropertyChanged
 }
 #endif
 
+void AGameManager::ReportStateChanged(AWorldObject* Object)
+{
+    if (!Object)
+    {
+        return;
+    }
+
+    // Просто пробрасываем наружу. Никакой логики: кто подписался — тот и решает,
+    // показать уведомление, записать в дневник или проигнорировать.
+    OnObjectStateChanged.Broadcast(Object);
+}
+
 void AGameManager::EvaluateTransitions()
 {
     if (bIsEvaluatingTransitions)

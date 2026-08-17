@@ -50,6 +50,12 @@ void AWorldObject::NotifyGameManager()
 
     if (GameManager)
     {
+        // Сначала сообщаем «вот этот объект изменился», потом уже прогоняем
+        // транзишны. Порядок важен для читаемости уведомлений: сперва
+        // «Подобран предохранитель», и только потом «Генератор заработал»,
+        // потому что второе — следствие первого.
+        GameManager->ReportStateChanged(this);
+
         GameManager->EvaluateTransitions();
     }
 
