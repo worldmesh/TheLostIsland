@@ -5,6 +5,8 @@
 #include "Interface/InteractionComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/BoxComponent.h"
+#include "Components/SceneComponent.h"
+#include "Materials/MaterialInterface.h"
 
 
 // Sets default values
@@ -15,12 +17,19 @@ AInteractableBase::AInteractableBase()
 
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 	RootComponent = Mesh;
+	// Значение стенсила для обводки (материал постпроцесса сверяет его у соседних
+	// пикселей). Сам Custom Depth включается/выключается в SetInteractHighlighted —
+	// это значение просто должно быть не нулём, меняться не должно.
+	Mesh->SetCustomDepthStencilValue(1);
 
 	InteractionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("InteractionBox"));
 	InteractionBox->SetupAttachment(Mesh);
 
 	InteractionBox->OnComponentBeginOverlap.AddDynamic(this, &AInteractableBase::OnInteractionBoxBeginOverlap);
 	InteractionBox->OnComponentEndOverlap.AddDynamic(this, &AInteractableBase::OnInteractionBoxEndOverlap);
+
+	WidgetAnchor = CreateDefaultSubobject<USceneComponent>(TEXT("WidgetAnchor"));
+	WidgetAnchor->SetupAttachment(Mesh);
 
 }
 
@@ -98,4 +107,32 @@ FText AInteractableBase::GetActionText() const
 FGameplayTag AInteractableBase::GetInteractionEvent() const
 {
 	return InteractionEvent;
+}
+
+FVector AInteractableBase::GetWidgetAnchorLocation() const
+{
+	if (WidgetAnchor)
+	{
+		return WidgetAnchor->GetComponentLocation();
+	}
+	return GetActorLocation();
+}
+
+void AInteractableBase::SetInteractHighlighted(bool bNewHighlighted)
+{
+	if (!Mesh)
+	{
+		return;
+	}
+
+	// Overlay Material — движок рисует его ДОПОЛНИТЕЛЬНЫМ проходом поверх меша,
+	// поверх обычных материалов и точно по форме объекта. Ничего не подменяет
+	// и не задевает окружение (в отличие от источника света внутри предмета).
+	// nullptr = снять подсветку.
+	Mesh->SetOverlayMaterial(bNewHighlighted ? HighlightMaterial : nullptr);
+
+	// Custom Depth оставлен намеренно: на нём держится будущая контурная обводка
+	// через пост-процесс (фаза 3, когда будет настраиваться весь пост-процесс).
+	// Сейчас ни на что не влияет и почти ничего не стоит.
+	Mesh->SetRenderCustomDepth(bNewHighlighted);
 }

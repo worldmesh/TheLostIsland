@@ -28,12 +28,23 @@ protected:
 	class UStaticMeshComponent* Mesh;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	class UBoxComponent* InteractionBox;
+	// Точка крепления виджета подсказки интеракта. Двигается вручную в каждом
+	// Blueprint-наследнике (на борт лодки, на дверь маяка, на гнездо предохранителя).
+	// По умолчанию совпадает с Mesh (Actor Location) — двигать не обязательно.
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	class USceneComponent* WidgetAnchor;
 
 
 	///Interaction Data///
-	
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Interaction")
 	FGameplayTag InteractionEvent;
+
+	// Материал подсветки «на меня смотрят». Ставится поверх меша отдельным
+	// проходом (Overlay Material) в SetInteractHighlighted. Выставляется один раз
+	// в Class Defaults у BP_BaseInteract — наследуется всеми объектами.
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Interaction")
+	class UMaterialInterface* HighlightMaterial;
 		///Collision Overlaps///
 	UFUNCTION()
 	void OnInteractionBoxBeginOverlap(
@@ -61,6 +72,17 @@ public:
 	virtual FText GetDescription() const;
 	virtual FText GetActionText() const;
 	virtual FGameplayTag GetInteractionEvent() const override;
+
+	// Мировая позиция для виджета подсказки интеракта. Читает WidgetAnchor;
+	// если он почему-то не создан — фолбэк на GetActorLocation().
+	UFUNCTION(BlueprintPure, Category = "Interaction")
+	FVector GetWidgetAnchorLocation() const;
+
+	// Подсветка меша под прицелом (Custom Depth). Mesh — protected, поэтому
+	// снаружи (например из WBP_InteractPrompt) включать/выключать подсветку
+	// нужно через эту функцию, а не напрямую.
+	UFUNCTION(BlueprintCallable, Category = "Interaction")
+	void SetInteractHighlighted(bool bNewHighlighted);
 
 
 
