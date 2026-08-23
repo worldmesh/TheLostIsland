@@ -267,6 +267,7 @@ FInteractionInfo UInteractionComponent::MakeInteractionInfo(AActor* Target) cons
 		Info.StateIndex  = WorldObject->GetCurrentState();
 		Info.StateName   = WorldObject->GetStateName(Info.StateIndex);
 		Info.DisplayTime = WorldObject->GetDisplayTime();
+		Info.MessageDelay = WorldObject->GetMessageDelay();
 
 		return Info;
 	}
@@ -366,20 +367,35 @@ void UInteractionComponent::Interact()
 
 	IInteractableInterface* Interactable = Cast<IInteractableInterface>(CurrentInteractable);
 
-	if (Interactable)
+	if (!Interactable)
 	{
-		// 1. Выполняем само действие (подбор, заливка топлива, нажатие рычага)
-		Interactable->Interact();
-
-		// 1.5 Если объект в результате интеракта уже уничтожил себя —
-		// не пытаемся читать у него текст, просто прячем виджет
-		if (!IsValid(CurrentInteractable))
-		{
-			ClearCurrentInteractable();
-			return;
-		}
-
-		// 2. СРАЗУ же обновляем виджет, чтобы отобразить новое состояние и текст!
-		RefreshInteractionWidget();
+		return;
 	}
+
+	// Снимок ДО действия. Пикап уничтожает себя внутри Interact(), и после
+	// вызова читать у него текст будет уже не у кого. Тот же приём, что
+	// с Pending-переменными в WBP_Dialogue: отложенная часть работает
+	// с копией, а не с исходником.
+	const FInteractionInfo InfoBefore = MakeInteractionInfo(CurrentInteractable);
+
+	// 1. Выполняем само действие (подбор, заливка топлива, нажатие рычага)
+	Interactable->Interact();
+
+	// 2. Объект пережил собственное действие — значит говорить должно его
+	// НОВОЕ состояние: рычаг щёлкнул вхолостую, генератор запустился.
+	if (IsValid(CurrentInteractable))
+	{
+		OnInteractionMessage.Broadcast(MakeInteractionInfo(CurrentInteractable));
+
+		// Обновляем плашку интеракта, чтобы она показала новое состояние и текст.
+		RefreshInteractionWidget();
+		return;
+	}
+
+	// 3. Объект уничтожил себя (пикап) — говорим тем, что успели снять
+	// до вызова. Для предохранителя это его собственное описание,
+	// а не сообщение генератора, которому его потом вставят.
+	OnInteractionMessage.Broadcast(InfoBefore);
+
+	ClearCurrentInteractable();
 }

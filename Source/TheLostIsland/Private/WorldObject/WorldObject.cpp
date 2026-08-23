@@ -127,6 +127,24 @@ float AWorldObject::GetDisplayTime() const
     return DisplayTime;
 }
 
+float AWorldObject::GetMessageDelay() const
+{
+    return GetMessageDelayForState(CurrentState);
+}
+
+float AWorldObject::GetMessageDelayForState(int32 StateIndex) const
+{
+    // Невалидный индекс — возвращаем ноль, а не что-то «на всякий случай».
+    // Ноль означает «показать сразу», то есть старое поведение: даже если
+    // объект настроен криво, сообщение не потеряется, просто не будет паузы.
+    if (!States.IsValidIndex(StateIndex))
+    {
+        return 0.f;
+    }
+
+    return States[StateIndex].MessageDelay;
+}
+
 void AWorldObject::ApplyStateEffects()
 {
 	if (!States.IsValidIndex(CurrentState))

@@ -40,7 +40,14 @@ struct FInteractionInfo
 	// (там по этому времени работает таймер скрытия); для плашки интеракта
 	// просто справочное значение — она живёт, пока игрок смотрит.
 	UPROPERTY(BlueprintReadOnly, Category = "Interaction")
-	float DisplayTime = 0.f;
+	float DisplayTime = 1.5f;
+
+	// Пауза перед показом текста, в секундах — берётся из текущего стейта
+	// (FInteractionState::MessageDelay). Нужна диалоговому окну: сообщение
+	// должно появляться ПОСЛЕ звука/секвенсера, а не одновременно с ними.
+	// Ноль = показывать сразу.
+	UPROPERTY(BlueprintReadOnly, Category = "Interaction")
+	float MessageDelay = 1.5f;
 
 	// Сам объект — если виджету понадобится что-то ещё, чего тут нет.
 	// Проверять на Is Valid перед использованием: пикап мог уже уничтожиться.
@@ -69,6 +76,18 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInteractionTargetCleared);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWorldObjectMessage, const FInteractionInfo&, Info);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnWorldObjectMessageCleared);
+
+// 3) OnInteractionMessage — ТОЛЬКО результат нажатия [E]. Третий канал.
+//
+// Диалоговое окно раньше слушало AGameManager::OnObjectStateChanged и потому
+// озвучивало ЛЮБУЮ смену состояния, включая каскадные: подобрал предохранитель —
+// окно рассказывает про генератор на другом конце карты, запустил генератор —
+// про рычаг на маяке. Игрок в этот момент занят другим, текст пролетает мимо.
+//
+// Здесь гарантированно говорит тот объект, на который игрок нажал, и только он.
+// Каскад состояний при этом никуда не девается — GameManager по-прежнему
+// переключает меши, свет и звук, он просто перестал быть источником СООБЩЕНИЙ.
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnInteractionMessage, const FInteractionInfo&, Info);
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class THELOSTISLAND_API UInteractionComponent : public UActorComponent
@@ -202,6 +221,13 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "Interaction|Events")
 	FOnWorldObjectMessageCleared OnWorldObjectMessageCleared;
+
+	// --- Делегат сообщения по результату интеракта ---
+	// На него подписано диалоговое окно. Пустой Description фильтруется
+	// в виджете, а не здесь: решение «показывать или молчать» принимает тот,
+	// кто показывает.
+	UPROPERTY(BlueprintAssignable, Category = "Interaction|Events")
+	FOnInteractionMessage OnInteractionMessage;
 
 	// Нужно InteractableBase, чтобы старые оверлапы не спорили с трейсом.
 	UFUNCTION(BlueprintPure, Category = "Interaction")

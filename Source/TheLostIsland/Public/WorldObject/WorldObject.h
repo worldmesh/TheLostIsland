@@ -56,6 +56,22 @@ struct FInteractionState
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")
 	FText ActionText;
 
+	// Пауза перед тем, как показать текст в диалоговом окне, в секундах.
+	// Отсчитывается от момента входа в состояние.
+	//
+	// Зачем: эффекты состояния (звук, анимация, Niagara, секвенсер) стартуют
+	// одновременно со сменой стейта, и текст, выскочивший в ту же миллисекунду,
+	// обгоняет событие — читается как подпись к тому, чего ещё не произошло.
+	// Задержка даёт событию отыграть, а тексту — стать его следствием.
+	//
+	// Значение подбирать под самый длинный эффект СТЕЙТА, а не объекта:
+	// у канистры это короткий звук (~0.4), у генератора — секвенсер (2-3).
+	// Ноль = старое поведение, текст мгновенно. Дефолт ноль намеренно:
+	// пока значение не выставлено руками, объект ведёт себя как раньше.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction",
+		meta = (ClampMin = "0.0", UIMax = "5.0"))
+	float MessageDelay = 0.f;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
 	FStateEffects Effects;
 };
@@ -98,11 +114,24 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "01 GAME LOGIC")
 	FText GetActionText() const;
 
+	// Сколько времени висит сообщение. ВНИМАНИЕ: это поле ОБЪЕКТА, а не стейта —
+	// одно на все состояния. MessageDelay, наоборот, лежит внутри
+	// FInteractionState, и у каждого состояния он свой.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")
 	float DisplayTime = 1.5f;
 
 	UFUNCTION(BlueprintPure, Category = "Interaction")
 	float GetDisplayTime() const;
+
+	// Задержка перед показом текста для ТЕКУЩЕГО состояния.
+	// Это то, что нужно в 99% случаев — брать в WBP_Dialogue.
+	UFUNCTION(BlueprintPure, Category = "Interaction")
+	float GetMessageDelay() const;
+
+	// То же для произвольного состояния. Нужно, если понадобится заглянуть
+	// вперёд — например, посчитать длину цепочки переходов.
+	UFUNCTION(BlueprintPure, Category = "Interaction")
+	float GetMessageDelayForState(int32 StateIndex) const;
 
 	UFUNCTION(BlueprintCallable)
 	bool SetCurrentState(int32 NewState);
