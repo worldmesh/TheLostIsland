@@ -97,10 +97,17 @@ protected:
 	bool bTargetWidgetShown = false;
 
 	// Точка, куда упёрся трейс на последнем кадре — в мировых координатах.
-	// Именно к ней виджет привязывает ромб-якорь и выноску: центр актора
-	// не подходит, у крупных объектов (дом, маяк, лодка) он далеко от
-	// того места, куда реально смотрит игрок.
+	// Живая, меняется каждый кадр. Нужна для служебных вещей (отладка,
+	// эффекты). Виджету для якоря брать НЕ её, а TargetAnchorPoint.
 	FVector LastImpactPoint = FVector::ZeroVector;
+
+	// Замороженная точка привязки виджета. Ставится один раз — в момент,
+	// когда цель захвачена, — и дальше не двигается, пока цель та же.
+	// Смысл: пока игрок читает плашку, она должна стоять на месте.
+	// Живой ImpactPoint для этого не годится — от него ромб с выноской
+	// ползёт по поверхности предмета за каждым движением мыши, и текст
+	// вместе с ним. Глаз не успевает зацепиться.
+	FVector TargetAnchorPoint = FVector::ZeroVector;
 
 	// Таймер для скрытия информации о WorldObject
 	FTimerHandle WorldObjectWidgetTimerHandle;
@@ -123,6 +130,11 @@ protected:
 	// Каждый тик стреляем лучом из камеры и решаем, на что смотрит игрок.
 	void UpdateInteractionTrace();
 
+	// Проверка удержания «липкой» цели: луч уже мимо, но не пора ли ещё
+	// отпускать? true — держим текущую цель, false — отпускаем.
+	// Вынесено отдельной функцией, чтобы UpdateInteractionTrace() читался.
+	bool ShouldKeepStickyTarget(const FVector& ViewLocation, const FVector& ViewDirection) const;
+
 	// true  — цель выбирается трейсом от камеры (новая схема).
 	// false — цель выбирается пересечением с InteractionBox (старая схема).
 	// Оставлено переключателем, чтобы можно было быстро сравнить/откатиться.
@@ -143,7 +155,34 @@ protected:
 	// Радиус сферы трейса. 0 — тонкий луч (придётся целиться точно),
 	// 10-20 — заметно дружелюбнее к игроку.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction|Trace")
-	float TraceRadius = 15.f;
+	float TraceRadius = 25.f;
+
+	// --- «Липкая» цель (гистерезис) ---
+	//
+	// Захват и отпускание — разные пороги. Захватываем строго: луч должен
+	// попасть в объект. А отпускаем мягко: пока игрок не отвёл взгляд
+	// заметно, не отошёл и не навёлся на другой интерактив — цель держится,
+	// даже если луч уже соскользнул мимо. Без этого плашка мигает от
+	// дрожания мыши на краю предмета.
+
+	// Выключатель на случай, если захочется сравнить со старым поведением.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction|Sticky")
+	bool bStickyTarget = true;
+
+	// Насколько далеко от центра экрана можно увести взгляд, не потеряв цель.
+	// Считается как угол между направлением камеры и направлением на точку
+	// захвата. 20-30 — комфортно; больше 45 — цель начинает «липнуть» слишком
+	// сильно и мешает переключаться.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction|Sticky",
+		meta = (ClampMin = "0.0", ClampMax = "90.0"))
+	float StickyReleaseAngle = 25.f;
+
+	// Запас по дистанции на отпускание, в долях от MaxInteractDistance.
+	// 1.15 = отойти можно на 15% дальше, чем нужно было для захвата.
+	// Иначе на самой границе радиуса плашка мигает от шага туда-сюда.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction|Sticky",
+		meta = (ClampMin = "1.0", ClampMax = "2.0"))
+	float StickyDistanceTolerance = 1.15f;
 
 	// Рисовать луч в игре — удобно при настройке дистанций.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction|Trace")
@@ -176,11 +215,18 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Interaction")
 	bool HasInteractionTarget() const { return CurrentInteractable != nullptr; }
 
-	// Куда упёрся трейс. Гнать через Project World Location to Widget Position,
-	// чтобы поставить ромб-якорь ровно на предмет. Читать каждый тик, пока
-	// виджет открыт: игрок крутит камеру, и экранная точка всё время едет.
+	// Куда упёрся трейс ПРЯМО СЕЙЧАС. Живая точка, едет каждый кадр.
+	// Для якоря виджета не использовать — см. GetTargetAnchorPoint().
 	UFUNCTION(BlueprintPure, Category = "Interaction")
 	FVector GetLastImpactPoint() const { return LastImpactPoint; }
+
+	// ЭТО брать для ромба-якоря и выноски. Точка в мире, замороженная в момент
+	// захвата цели: гнать через Project World Location to Widget Position
+	// каждый тик (экранная проекция всё равно меняется, когда игрок ходит
+	// и крутит камеру), но сама точка на предмете стоит намертво — плашка
+	// не ползает, пока игрок её читает.
+	UFUNCTION(BlueprintPure, Category = "Interaction")
+	FVector GetTargetAnchorPoint() const { return TargetAnchorPoint; }
 
 	// Description текущей цели одной нодой — чтобы в виджете не городить
 	// Cast To WorldObject каждый раз. Пусто, если цели нет.

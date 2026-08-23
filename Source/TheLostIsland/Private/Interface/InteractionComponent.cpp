@@ -103,6 +103,14 @@ void UInteractionComponent::UpdateInteractionTrace()
 		{
 			DrawDebugSphere(World, Hit.ImpactPoint, TraceRadius, 12, FColor::Green, false, 0.f);
 		}
+
+		// Жёлтая точка — замороженный якорь текущей цели. По ней видно,
+		// докуда «дотягивается» липкость: пока луч красный, а жёлтая точка
+		// на месте — цель держится гистерезисом.
+		if (IsValid(CurrentInteractable))
+		{
+			DrawDebugSphere(World, TargetAnchorPoint, 8.f, 8, FColor::Yellow, false, 0.f);
+		}
 	}
 
 	// 3. Решаем, годится ли то, во что попали, как цель взаимодействия.
@@ -130,6 +138,18 @@ void UInteractionComponent::UpdateInteractionTrace()
 		}
 	}
 
+	// 3.5. Гистерезис. Луч мимо — но это ещё не повод отпускать цель.
+	//      Держим её, пока игрок не отвёл взгляд заметно и не отошёл.
+	//      Важно: эта ветка работает только когда трейс НЕ нашёл другой
+	//      интерактив — на новый объект переключаемся сразу, без задержки.
+	if (!NewTarget && bStickyTarget && IsValid(CurrentInteractable))
+	{
+		if (ShouldKeepStickyTarget(ViewLocation, ViewRotation.Vector()))
+		{
+			NewTarget = CurrentInteractable;
+		}
+	}
+
 	// 4. Дёргаем делегаты ТОЛЬКО если что-то реально изменилось,
 	//    иначе виджет будет перерисовываться каждый кадр.
 	if (NewTarget)
@@ -148,6 +168,49 @@ void UInteractionComponent::UpdateInteractionTrace()
 	}
 }
 
+bool UInteractionComponent::ShouldKeepStickyTarget(const FVector& ViewLocation, const FVector& ViewDirection) const
+{
+	const AActor* Owner = GetOwner();
+
+	if (!Owner || !IsValid(CurrentInteractable))
+	{
+		return false;
+	}
+
+	// Меряем всё до точки захвата (замороженной), а не до живого ImpactPoint:
+	// луч уже улетел мимо предмета, и его текущая точка попадания к нашей
+	// цели отношения не имеет.
+	const FVector ToAnchor = TargetAnchorPoint - ViewLocation;
+
+	if (ToAnchor.IsNearlyZero())
+	{
+		return false;
+	}
+
+	// 1. Не отошёл ли игрок. С запасом StickyDistanceTolerance, иначе
+	//    на самой границе радиуса плашка мигает от шага туда-сюда.
+	const float ReleaseDistance = MaxInteractDistance * StickyDistanceTolerance;
+
+	if (FVector::Dist(Owner->GetActorLocation(), TargetAnchorPoint) > ReleaseDistance)
+	{
+		return false;
+	}
+
+	// 2. Не отвёл ли взгляд. Угол между направлением камеры и направлением
+	//    на точку захвата. Косинусы сравниваем напрямую — так дешевле, чем
+	//    гнать арккосинус каждый кадр, и результат тот же.
+	const float CosLimit = FMath::Cos(FMath::DegreesToRadians(StickyReleaseAngle));
+	const float CosAngle = FVector::DotProduct(ViewDirection, ToAnchor.GetSafeNormal());
+
+	if (CosAngle < CosLimit)
+	{
+		return false;
+	}
+
+	// Луч мимо, но игрок явно всё ещё «при объекте» — держим.
+	return true;
+}
+
 void UInteractionComponent::SetCurrentInteractable(AActor* NewInteractable)
 {
 	CurrentInteractable = NewInteractable;
@@ -161,6 +224,12 @@ void UInteractionComponent::SetCurrentInteractable(AActor* NewInteractable)
 
 	if (Interactable)
 	{
+		// Замораживаем точку привязки виджета — ровно здесь, один раз на цель.
+		// Дальше LastImpactPoint может ехать сколько угодно, плашка стоит.
+		// RefreshInteractionWidget() эту точку НЕ трогает специально: смена
+		// состояния объекта (взяли, залили, включили) не должна дёргать якорь.
+		TargetAnchorPoint = LastImpactPoint;
+
 		// Вместо вызова виджета напрямую, мы сообщаем всем подписчикам (нашему UI),
 		// что появилась новая цель
 		bTargetWidgetShown = true;
